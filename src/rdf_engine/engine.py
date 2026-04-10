@@ -1,15 +1,19 @@
 from loguru import logger
 
+def empty_store():
+    from pyoxigraph import Store
+    return Store()
+
 class Engine:
     from .rules import Rule
-    from typing import Iterable, Literal
+    from typing import Iterable, Literal, Callable
     class DeanonPrefix(str): ...
     from pyoxigraph import Store
     from inspect import signature
     from .canon import quads
     def __init__(self,
         rules: Iterable[Rule] = [], *,
-        db: Store=Store(),
+        db: Store| Callable[[], Store]=empty_store,
             MAX_NCYCLES: int=99,
         # safe settings to avoid inf cycling and worst performance
         derand: Literal['canonicalize'] | DeanonPrefix | Literal[False]
@@ -20,7 +24,7 @@ class Engine:
             log_data: bool=True, log_print: bool=True, log_debug: bool=False
         ) -> None:
         self.rules = list(rules)
-        self.db = db
+        self.db = db if isinstance(db, self.Store) else db()
 
         self.MAX_NCYCLES = MAX_NCYCLES
 
