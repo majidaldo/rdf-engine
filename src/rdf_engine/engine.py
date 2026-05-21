@@ -108,7 +108,23 @@ class Engine:
                     s = self.logging.data[-1]
                     width = 6
                     qi = 'quads in'
-                    logger.info('   '+f"{s.new:<{width}} {qi if ir==0 else ' '*len(qi)} {s.time}s"  )
+                    def format(s):
+                        s = float(s)
+                        if s < 1: return f"{s} second"
+                        seconds = round(s)
+                        periods = [
+                            ('day',         60*60*24),
+                            ('hour',        60*60),
+                            ('minute',      60),
+                            ('second',      1),
+                        ]
+                        parts = []
+                        for name, limit in periods:
+                            value, seconds = divmod(seconds, limit)
+                            if (value > 0):
+                                parts.append(f"{value} {name}{'s' if value != 1 else ''}")
+                        return ", ".join(parts) if parts else "0 seconds"
+                    logger.info('   '+f"{s.new:<{width}} {qi if ir==0 else ' '*len(qi)} {format(s.time)}"  )
                     del s, width, qi
             # so if a rule returns a string,
             # it /could/ go in fast in the case of no processing (canon/deanon)
